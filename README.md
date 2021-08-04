@@ -27,5 +27,7 @@ Once you have installed the package, you can start coding. Create an index.wjson
 ```
 This minimal amount of code is required to run a Server. Now navigate to the root folder and run
 
-``wjson run index.wjson //your file name``
+```
+wjson run index.wjson //your file name
+```
 It should start a server in the specified port. By default, it will accept get requests now. You can give it a visit to be sure.
