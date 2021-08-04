@@ -1,0 +1,45 @@
+[
+    {
+        "type": "server",
+        "params": {
+            "method": "get",
+            "port": 4000,
+            "name": "First JSON Web App Ever"
+        }
+    },
+    {
+        "type": "page",
+        "title": "Run JSON on Web!"
+    },
+    {
+        "type" : "script",
+        "value": "scripts.js"
+    },
+    {
+        "type": "text",
+        "value": "You are approved!",
+        "condition": "&name == 1234",
+        "params": {
+            "style": {
+                "fontSize": 15,
+                "color": "blue",
+                "fontFamily": "helvetica"
+            },
+            "id": "demoText"
+        }
+    },
+    {
+        "type": "block",
+        "params": {
+            "style": {
+                "height": 100,
+                "width" : 200,
+                "backgroundColor": "red"
+            }
+        },
+        "child" : [{
+            "type": "text",
+            "value" : "hello"
+        }]
+    }
+]

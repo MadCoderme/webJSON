@@ -91,18 +91,6 @@ function parseJSON(req, data){
                             var style = element.params.style
                         }
                         if(shouldRender) getReturn = getReturn + '<div id="'+id+'" style="' + parseStyle(style) + '">' + parseChild(element.child) + '</div>'
-                    }else if(element.type == 'textInput'){
-                        var shouldRender = true
-                        if(element.condition){
-                            let result = judgeCondition(element)
-                            shouldRender = result
-                        }
-                        if(element.params){
-                            var id = element.params.id
-                            var style = element.params.style
-                            var placeholder = element.params.placeHolder
-                        }
-                        if(shouldRender) getReturn = getReturn + '<input type="text" id="'+id+'" style="' + parseStyle(style) + '" placeholder="'+placeholder+'" />'
                     }
                  })
     return getReturn             
@@ -155,9 +143,8 @@ function parseChild( data){
                         if(element.params){
                             var id = element.params.id
                             var style = element.params.style
-                            var placeholder = element.params.placeHolder
                         }
-                        if(shouldRender) getReturn = getReturn + '<input type="text" id="'+id+'" style="' + parseStyle(style) + '" placeholder="'+placeholder+'" />'
+                        if(shouldRender) getReturn = getReturn + '<input type="text" id="'+id+'" style="' + parseStyle(style) + '" />'
                     }
                  })
     return getReturn             
