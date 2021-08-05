@@ -173,4 +173,5 @@ These conditional operators are supported right now:
 2. "!="
 3. ">"
 4. "<"
+
 You can compare these to conditional if statements but more easier to apply. If the condition is true, then the object will be rendered. Else it won't be rendered.
