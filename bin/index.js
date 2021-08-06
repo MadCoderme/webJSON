@@ -3,13 +3,55 @@ const { program } = require('commander')
 const fs = require('fs')
 const express = require('express')
 const app = express()
+const path = require('path')
+const uncss = require('uncss')
 
-const wjsonScripts = fs.readFileSync(process.argv[1].replace('index.js', '') + '\wjsonScripts.js', {encoding: 'utf8'})
+app.use(express.json())
+
+const wjsonScripts = fs.readFileSync(path.resolve(__dirname, 'wjson.js'), {encoding: 'utf8'})
+var cssLib = ''
 
 program
     .command('run <file>')
     .description('Run JSON on Web')
     .action(run)
+
+program
+    .command('purgeTailwind <file>')
+    .description('Remove unused Tailwind CSS from your page')
+    .action(purge)    
+
+function purge(fileName){
+    console.log('Analyzing your Files...')
+
+    var wjson = fs.readFileSync(fileName, {encoding: 'utf8'})
+    var nameServer = JSON.parse(wjson).find(el => el.type == 'server')
+    var name = nameServer.params.name
+    const pages = JSON.parse(wjson).filter(el => el.type == 'page')
+    var parsedData = ``
+    pages.forEach(item => {
+        let returned = parseJSON([], item, 'get', true)
+        parsedData = parsedData+ returned
+    })
+    var options = {
+        userAgent    : 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X)',
+        stylesheets  : [path.resolve(__dirname, 'tailwind/style.css')]
+    }
+    uncss(parsedData, options, function (error, output) {
+        if(error){
+            console.log('Purge error', error)
+        }else{
+          console.log('Done Analyzing. Generating New File')
+          fs.writeFile(path.resolve(__dirname, name + '-tailwind.css'), output, (err) => {
+            if (err)
+              console.log(err)
+            else {
+              console.log("File Generated Successfully\n")
+            }
+          })
+        }
+    })
+}
 
 function run(fileName){
     if(fileName.substring(fileName.length - 6, fileName.length) != '.wjson'){
@@ -23,37 +65,39 @@ function run(fileName){
         }
         console.log('Parsing webJSON Server Data...')
         var port = 0
-        var method = 'get'
         var name = 'WebJSON'
         JSON.parse(data).forEach(element => {
            if(element.type == 'server'){
                port = element.params.port
-               method = element.params.method
                name = element.params.name ? element.params.name : 'WebJSON'
            }
+        })
+
+        fs.readFile(path.resolve(__dirname, name + '-tailwind.css'), {encoding: 'utf8'}, (err, data) => {
+            if(data){
+                cssLib = data
+            }else{
+                cssLib = fs.readFileSync(path.resolve(__dirname, 'tailwind/style.css'), {encoding: 'utf8'})
+            }
         })
 
         if(!port){
             console.log('Error: You must specify port inside server Object to run a server')
         }else{
-            if(method == 'get'){
-                const pages = JSON.parse(data).filter(el => el.type == 'page')
-                pages.forEach(item => {
-                    app.get(item.route ? '/' + item.route : '/', (req, res) => {
-                        let parsedData = parseJSON(req, item)
+            const pages = JSON.parse(data).filter(el => el.type == 'page')
+            pages.forEach(item => {
+                if(item.method == 'get'){
+                    app.get(item.route ? item.routeParam ? '/' + item.route + '/:' + item.routeParam : '/' + item.route : '/', async(req, res) => {
+                        let parsedData = parseJSON(req, item, 'get')
                         res.send(parsedData)
                     })
-                })
-            }else if(method == 'post'){
-                app.post('/', (req, res) => {
-                    res.send(getReturn)
-                })
-            }else if(method == 'put'){
-                app.put('/', (req, res) => {
-                    res.send(getReturn)
-                })
-            }
-              
+                }else if(item.method == 'post'){
+                    app.post(item.route ? '/' + item.route : '/', (req, res) => {
+                        let parsedData = parseJSON(req, item, 'post')
+                        res.send(parsedData)
+                    })
+                }
+            })
             app.listen(port, () => {
                console.log(`${name} is running on http://localhost:${port}`)
             }) 
@@ -61,12 +105,36 @@ function run(fileName){
     })
 }
 
-function parseJSON(req, data){
-    var getReturn = `<style>p { font-size: 20px; font-family: helvetica; }</style>
+function parseJSON(req, data, method, isPurgeMode){
+    var tailwindCSS = isPurgeMode ? '' : data.params ? data.params.enableTailwind ? cssLib : '' : ''
+    var getReturn = `<style>${tailwindCSS}</style>
     <script>${wjsonScripts}</script>`
-                const corrected = JSON.stringify(data.child).replace(/&(\w+)\b/gi, (mathchedText,$1,offset,str) => {
-                    return  req.query[$1]
-                })
+    if(data.childPath){
+        var toRead = fs.readFileSync(data.childPath, {encoding: 'utf8'})
+    }else{
+        var toRead = JSON.stringify(data.child)
+    }
+    if(req.length > 0){
+        if(method == 'get'){
+            if(req.params){
+                var corrected = toRead.replace(/&&(\w+)\b/gi, (mathchedText,$1,offset,str) => {
+                   return  req.params[$1]
+                  })
+            }else{
+                var corrected = toRead
+            }
+            corrected = corrected.replace(/&(\w+)\b/gi, (mathchedText,$1,offset,str) => {
+                return  req.query[$1]
+            })
+        }else if(method == 'post'){
+            corrected = toRead.replace(/&(\w+)\b/gi, (mathchedText,$1,offset,str) => {
+                return  req.body[$1]
+            })
+        }
+    }else{
+        var corrected = toRead
+    }
+
     data.title ? getReturn = getReturn + '<title>' + data.title + '</title>' : null            
                 JSON.parse(corrected).forEach(element => {
                    if(element.type == 'script'){
@@ -100,7 +168,7 @@ function parseJSON(req, data){
                             var id = element.params.id
                             var style = element.params.style
                         }
-                        if(shouldRender) getReturn = getReturn + '<p id="'+ id+'" onclick="'+element.onClick+'" style="' + parseStyle(style) + '">' + element.value + '</p>'
+                        if(shouldRender) getReturn = getReturn + '<p id="'+ id+'" onclick="'+element.onClick+'" class="'+parseStyle(style)+'" style="' + parseStyle(style) + '">' + element.value + '</p>'
                     }else if(element.type == 'block'){
                         var shouldRender = true
                         if(element.condition){
@@ -135,6 +203,18 @@ function parseJSON(req, data){
                             var style = element.params.style
                         }
                         if(shouldRender) getReturn = getReturn + '<button id="'+id+'" onclick="'+element.onClick+'" style="' + parseStyle(style) + '">'+element.value+'</button>'
+                    }else if(element.type == 'image'){
+                        var shouldRender = true
+                        if(element.condition){
+                            let result = judgeCondition(element)
+                            shouldRender = result
+                        }
+                        if(element.params){
+                            var id = element.params.id
+                            var style = element.params.style
+                            var loadingLazy = element.params.lazy
+                        }
+                        if(shouldRender) getReturn = getReturn + '<img src="'+element.value+'"  id="'+id+'" loading="'+parseLoadingattr(loadingLazy)+'" onclick="'+element.onClick+'" style="' + parseStyle(style) + '" />'
                     }
                  })
     return getReturn             
@@ -208,6 +288,9 @@ function judgeCondition(element){
 }
 
 function parseStyle(styleData){
+    if(typeof styleData == 'string'){
+        return styleData
+    }
     var converted = ``
     for (var key in styleData){
         converted = converted + formatStyleKey(key) + ':' + formatStyleVal(styleData[key], key) + ';'
@@ -233,6 +316,10 @@ function formatStyleVal(val, prop){
         else return val + 'px'  
     }
       else if(typeof val == 'string') return val
+}
+
+function parseLoadingattr(isLazy){
+    return isLazy ?  'lazy' : 'eager'
 }
 
 program.parse()

@@ -1,19 +1,24 @@
 {
   "name": "webjson",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "build web applications with json and js",
   "main": "./bin/index.js",
   "bin": {
     "wjson": "./bin/index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tailwind:css": "postcss bin/styles/tailwind.css -o bin/styles/style.css"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "commander": "^8.1.0",
     "express": "^4.17.1",
-    "fs": "^0.0.1-security"
+    "fs": "^0.0.1-security",
+    "postcss-cli": "^8.3.1"
+  },
+  "devDependencies": {
+    "uncss": "^0.17.3"
   }
 }

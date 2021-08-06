@@ -46,12 +46,13 @@ Every configuration or component is basically just a JSON object. The page is an
 6. Block
 7. TextInput
 8. Button
+
 NOTE: Make sure you type them in lower case letters.
 
 ### Server
 This is a required object. Please note that, Only "get" method is supported now. name specifies the Name of your Application.
 
-A complete example of server object can be:
+A complete example of `server` object can be:
 ```json
  {
    "type":"server",
@@ -63,23 +64,64 @@ A complete example of server object can be:
  }
 ``` 
 ### Page
-This is a configuration object for page. Once routing feature is added, this will be the base of routing. Currently title is the only supported settings. This sets the page Title. A complete example of page object can be:
+This is a configuration object for each page. `page` object acts
+as the building block of a web app. This is the base component for routing.
+
+1. `route` sets the route path of the page. In case of index page, you don't need to specify this.
+2. `routeParam` determines by what name you want to receive the URL params.
+3. `title` sets the page Title. 
+4. `child` is an array of all objects that you want to display in that particular page. 
+5. `childPath` if you want to load the childs from a different file, then put the file local path here. 
+If you specify this, `child` value will be ignored.
+
+A complete example of `page` object can be:
 ```json
  {
    "type":"page",
    "title": "Home",
+   "child": [
+     {"type": "text", "value": "Home page"}
+   ]
+ },
+ {
+   "type":"page",
+   "title": "About",
+   "route": "about",
+   "childPath": "about.wjson"
  }
+
 ``` 
-### Script
-You can load and add javascript code in JSON. As JSON supports only string, number and boolean value, It's difficult to write JS in JSON. So, the solution is to create a separate .js file and load it in your webJSON page. value must be a local file path. A simple example of script object can be:
+### Scripts
+You can load and add javascript code in JSON. As JSON supports only **string**, **number** and **boolean** value, It's difficult to write JS in JSON. So, the solution is to create a separate .js file and load it in your webJSON page. `value` must be a local file path. 
+A simple example of `script` object can be:
 ```json
  {
    "type":"script",
    "value": "scripts.js",
  }
 ``` 
+
+There is another object called `initScript` or **Initial Script**
+This runs as soon as the page is loaded.
+```json
+ {
+   "type":"initScript",
+   "value": "getPosts.js",
+ }
+``` 
+### StyleSheet
+Just like HTML stylesheet import, you can include `CSS` stylesheet in your `page`.
+The setup is similar to Scipts.
+A simple example of `styleSheet` object can be:
+```json
+ {
+   "type":"styleSheet",
+   "value": "styles.css",
+ }
+``` 
+
 ### Text
-This is equivalent to html p element. A complete example of text object can be:
+This is equivalent to html `p` element. A complete example of text object can be:
 ```json
  {
    "type":"text",
@@ -95,7 +137,7 @@ This is equivalent to html p element. A complete example of text object can be:
 Take a look at the Style Support list for available style params.
 
 ### Block
-This is equivalent to html div element. With this, You can do everything that you can do with div. This has a special element called child, Where you can append child components. Once again, it is an array of objects. Child components are parsed the same way parent components are parsed.
+This is equivalent to html `div` element. With this, You can do everything that you can do with div. This has a special element called child, Where you can append child components. Once again, it is an array of objects. Child components are parsed the same way parent components are parsed.
 
 A complete example of block object can be:
 ```json
@@ -113,7 +155,7 @@ A complete example of block object can be:
  }
 ``` 
 ### TextInput
-This is equivalent to html input element with type text. More options and params for this will be added soon.
+This is equivalent to html `input` element with type text. More options and params for this will be added soon.
 ```json
  {
    "type":"textInput",
@@ -126,6 +168,17 @@ This is equivalent to html input element with type text. More options and params
    }
  }
  ```
+
+### Button
+This is basically nothing but `button` element. More options and params for this will be added soon.
+```json
+ {
+   "type":"button",
+   "value": "Click Me!",
+   "onClick": "alert('it is working...')
+ }
+``` 
+
 ### Supported Style Params
 Take a look at the supported style params. More will be added soon. 
 NOTE: You can use all the css params that has no conflict with the following style(no hyphens)
@@ -160,12 +213,40 @@ function giveAlert(){
   }
 }
 ```
+
+You can receive URL parameters of `get` request by putting `&&` before
+the param name.
+For example, if the url is: ``http://localhost:3000/post/123``, then you can receive `123` like below:
+```json
+ {
+   "value": "url param id is &&id"
+ }
+```
+
+Check Page object to understand how to configure URL params.
+
+### Routing
+Routing or Navigation is one of the most important part of every web application. 
+webJSON makes it very easy to setup and perform routing. 
+
+As mentioned earlier, every `page` object is indeed a Page. To navigate form one page to another, you can use the 
+built in function of webJSON 
+```json
+{
+  "type": "button",
+  "value": "About",
+  "onClick": "navigate('about')"
+}
+```
+Basically, you need to pass the `route` name of the page, that you want
+to navigate to. You can pass extra data for example URL Parameters and Query Parameters too.
+
 ## Conditional Rendering
-Basic Conditional rendering has been made a lot easier in webJSON. You can pass a special condition element to every object except server You need to follow a special syntax to write conditions. Each condition is an array of 3 elements.
+Basic Conditional rendering has been made a lot easier in webJSON. You can pass a special condition element to every object except server. You need to follow a special syntax to write conditions. Each condition is an array of 3 elements.
 ```json
   "condition": ["&id", "==", "abcd"], 
 ```
-Yes, you can use those special functionalities too. Only strings and Integers are supported to be passed as 1st and 3rd element.
+Yes, you can use those special functionalities of receiving inputs too. Only strings and Integers are supported to be passed as 1st and 3rd element.
 
 These conditional operators are supported right now:
 
