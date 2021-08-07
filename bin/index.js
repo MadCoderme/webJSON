@@ -215,6 +215,17 @@ function parseJSON(req, data, method, isPurgeMode){
                             var loadingLazy = element.params.lazy
                         }
                         if(shouldRender) getReturn = getReturn + '<img src="'+element.value+'"  id="'+id+'" loading="'+parseLoadingattr(loadingLazy)+'" onclick="'+element.onClick+'" style="' + parseStyle(style) + '" />'
+                    }else if(element.type == 'link'){
+                        var shouldRender = true
+                        if(element.condition){
+                            let result = judgeCondition(element)
+                            shouldRender = result
+                        }
+                        if(element.params){
+                            var id = element.params.id
+                            var style = element.params.style
+                        }
+                        if(shouldRender) getReturn = getReturn + '<a href="'+element.link+'"  id="'+id+'" style="' + parseStyle(style) + '">'+element.value+'</a>'
                     }
                  })
     return getReturn             
