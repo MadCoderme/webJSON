@@ -5,7 +5,7 @@ webJSON is a Node.js based framework to build modern dynamic and static web appl
 
 It's basically plain JSON with a special syntax which is parsed and converted to browser supported codes on runtime. Its simplicity and ease enables you to easily create and run a web application.
 
-webJSON is based on NodeJS. You can create a server and run with only 5-6 lines of JSON. webJSON has its own CLI and file extension wjson. The power of webJSON can be realized better in dynamic app development.
+webJSON is based on NodeJS. You can create a server and run with only 5-6 lines of JSON. webJSON has its own CLI and file extension `wjson`. The power of webJSON can be realized better in dynamic app development.
 
 ## Installation
 Make sure you have Node latest version installed. Install it using `npm` or `yarn`
@@ -29,7 +29,7 @@ This minimal amount of code is required to run a Server. Now navigate to the roo
 ```
 wjson run index.wjson //your file name
 ```
-It should start a server in the specified port. By default, it will accept get requests now. You can give it a visit to be sure.
+It should start a server in the specified port. By default, it will show `Cannot GET /`. You can give it a visit to be sure.
 
 ## Supported Objects
 As I am a student, I haven't been able to add enough support yet. I am actively developing and bringing more support for the basic things. Basic structure and code base is already built.
@@ -48,6 +48,7 @@ Every configuration or component is basically just a JSON object. The page is an
 8. Button
 9. Image
 10. Link
+
 NOTE: Make sure you type them in lower case letters.
 
 ## Server
@@ -317,6 +318,7 @@ These conditional operators are supported right now:
 2. "!="
 3. ">"
 4. "<"
+
 You can compare these to conditional if statements but more easier to apply. If the condition is true, then the object will be rendered. Else it won't be rendered.
 
 ## Support and Contribution
