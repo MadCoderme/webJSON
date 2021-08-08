@@ -3,10 +3,14 @@ const { program } = require('commander')
 const fs = require('fs')
 const express = require('express')
 const app = express()
+const http = require('http')
 const path = require('path')
 const uncss = require('uncss')
 
+var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest
+
 app.use(express.json())
+const server = http.createServer(app)
 
 const wjsonScripts = fs.readFileSync(path.resolve(__dirname, 'wjson.js'), {encoding: 'utf8'})
 var cssLib = ''
@@ -53,60 +57,72 @@ function purge(fileName){
     })
 }
 
+
 function run(fileName){
     if(fileName.substring(fileName.length - 6, fileName.length) != '.wjson'){
         console.error('File must be a wjson file')
         return
     }
-    fs.readFile(fileName, 'utf8' , (err, data) => {
-        if (err) {
-          console.error(err)
-          return
-        }
-        console.log('Parsing webJSON Server Data...')
-        var port = 0
-        var name = 'WebJSON'
-        JSON.parse(data).forEach(element => {
-           if(element.type == 'server'){
-               port = element.params.port
-               name = element.params.name ? element.params.name : 'WebJSON'
-           }
-        })
 
-        fs.readFile(path.resolve(__dirname, name + '-tailwind.css'), {encoding: 'utf8'}, (err, data) => {
-            if(data){
-                cssLib = data
-            }else{
-                cssLib = fs.readFileSync(path.resolve(__dirname, 'tailwind/style.css'), {encoding: 'utf8'})
-            }
-        })
-
-        if(!port){
-            console.log('Error: You must specify port inside server Object to run a server')
-        }else{
-            const pages = JSON.parse(data).filter(el => el.type == 'page')
-            pages.forEach(item => {
-                if(item.method == 'get'){
-                    app.get(item.route ? item.routeParam ? '/' + item.route + '/:' + item.routeParam : '/' + item.route : '/', async(req, res) => {
-                        let parsedData = parseJSON(req, item, 'get')
-                        res.send(parsedData)
-                    })
-                }else if(item.method == 'post'){
-                    app.post(item.route ? '/' + item.route : '/', (req, res) => {
-                        let parsedData = parseJSON(req, item, 'post')
-                        res.send(parsedData)
-                    })
-                }
-            })
-            app.listen(port, () => {
-               console.log(`${name} is running on http://localhost:${port}`)
-            }) 
-        }       
+    fs.watchFile(fileName, (ev, data) => {
+        fs.readFile(fileName, 'utf8' , (err, data) => {
+                server.close()
+                //processWebJSONFile(err, data)
+         })
     })
+
+    fs.readFile(fileName, 'utf8' , (err, data) => {
+       processWebJSONFile(err, data)
+    })
+}
+function processWebJSONFile(err, data){
+    if (err) {
+        console.error(err)
+        return
+      }
+      console.log('Parsing webJSON Server Data...')
+      var port = 0
+      var name = 'WebJSON'
+      JSON.parse(data).forEach(element => {
+         if(element.type == 'server'){
+             port = element.params.port
+             name = element.params.name ? element.params.name : 'WebJSON'
+         }
+      })
+
+      fs.readFile(path.resolve(__dirname, name + '-tailwind.css'), {encoding: 'utf8'}, (err, data) => {
+          if(data){
+              cssLib = data
+          }else{
+              cssLib = fs.readFileSync(path.resolve(__dirname, 'tailwind/style.css'), {encoding: 'utf8'})
+          }
+      })
+
+      if(!port){
+          console.log('Error: You must specify port inside server Object to run a server')
+      }else{
+          const pages = JSON.parse(data).filter(el => el.type == 'page')
+          pages.forEach(item => {
+              if(item.method == 'get'){
+                  app.get(item.route ? item.routeParam ? '/' + item.route + '/:' + item.routeParam : '/' + item.route : '/', async(req, res) => {
+                      let parsedData = await parseJSON(req, item, 'get')
+                      res.send(parsedData)
+                  })
+              }else if(item.method == 'post'){
+                  app.post(item.route ? '/' + item.route : '/', async(req, res) => {
+                      let parsedData = await parseJSON(req, item, 'post')
+                      res.send(parsedData)
+                  })
+              }
+          })
+          server.listen(port, () => {
+             console.log(`${name} is running on http://localhost:${port}`)
+          }) 
+      }  
 }
 
 function parseJSON(req, data, method, isPurgeMode){
-    var tailwindCSS = isPurgeMode ? '' : data.params ? data.params.enableTailwind ? cssLib : '' : ''
+    var tailwindCSS = isPurgeMode ? '' : data.params ? data.params.enableTailwind ?'' : '' : ''
     var getReturn = `<style>${tailwindCSS}</style>
     <script>${wjsonScripts}</script>`
     if(data.childPath){
@@ -136,7 +152,7 @@ function parseJSON(req, data, method, isPurgeMode){
     }
 
     data.title ? getReturn = getReturn + '<title>' + data.title + '</title>' : null            
-                JSON.parse(corrected).forEach(element => {
+                JSON.parse(corrected).forEach(async(element) => {
                    if(element.type == 'script'){
                         var scripts = fs.readFileSync(element.value, {encoding: 'utf8'})
                         const correctedScripts = scripts.replace(/&(\w+)\b/gi, (mathchedText,$1,offset,str) => {
@@ -226,15 +242,41 @@ function parseJSON(req, data, method, isPurgeMode){
                             var style = element.params.style
                         }
                         if(shouldRender) getReturn = getReturn + '<a href="'+element.link+'"  id="'+id+'" style="' + parseStyle(style) + '">'+element.value+'</a>'
+                    }else if(element.type == 'list'){
+                        var shouldRender = true
+                        if(element.condition){
+                            let result = judgeCondition(element)
+                            shouldRender = result
+                        }
+
+                        var returnedList = ''
+                        if(typeof element.data == 'string' && /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(element.data)){
+                            var xhttp = new XMLHttpRequest();
+                            xhttp.open("GET", element.data, false)
+                            xhttp.send()
+                            if(xhttp.status == 200){
+                                provData = JSON.parse(xhttp.responseText)
+                            }
+                        }else if(Array.isArray(element.data)){
+                            var provData = element.data
+                        }
+                        provData.map((item, idx) => {
+                            let eachItem = parseChild(element.value).replace(/[$]+([a-z A-Z]{1,})/gi, (mathchedText,$1,offset,str) => {
+                                return  item[$1]
+                            })
+                            returnedList = returnedList + eachItem
+                        }) 
+
+                        if(shouldRender) getReturn = getReturn + returnedList
                     }
-                 })
-    return getReturn             
+                 })      
+    return getReturn                       
 }
 
 function parseChild( data){
     var getReturn = ``
                 data.forEach(element => {
-                    if(element.type == 'text'){
+                   if(element.type == 'text'){
                         var shouldRender = true
                         if(element.condition){
                             let result = judgeCondition(element)
@@ -279,6 +321,29 @@ function parseChild( data){
                             var style = element.params.style
                         }
                         if(shouldRender) getReturn = getReturn + '<button id="'+id+'" onclick="'+element.onClick+'" style="' + parseStyle(style) + '">'+element.value+'</button>'
+                    }else if(element.type == 'image'){
+                        var shouldRender = true
+                        if(element.condition){
+                            let result = judgeCondition(element)
+                            shouldRender = result
+                        }
+                        if(element.params){
+                            var id = element.params.id
+                            var style = element.params.style
+                            var loadingLazy = element.params.lazy
+                        }
+                        if(shouldRender) getReturn = getReturn + '<img src="'+element.value+'"  id="'+id+'" loading="'+parseLoadingattr(loadingLazy)+'" onclick="'+element.onClick+'" style="' + parseStyle(style) + '" />'
+                    }else if(element.type == 'link'){
+                        var shouldRender = true
+                        if(element.condition){
+                            let result = judgeCondition(element)
+                            shouldRender = result
+                        }
+                        if(element.params){
+                            var id = element.params.id
+                            var style = element.params.style
+                        }
+                        if(shouldRender) getReturn = getReturn + '<a href="'+element.link+'"  id="'+id+'" style="' + parseStyle(style) + '">'+element.value+'</a>'
                     }
                  })
     return getReturn             

@@ -1,5 +1,5 @@
 # webJSON
-**Build Modern Web Apps just with JSON**
+**Build Modern Web Apps just with JSON and JS**
 
 webJSON is a Node.js based framework to build modern dynamic and static web applications.
 
@@ -8,19 +8,19 @@ It's basically plain JSON with a special syntax which is parsed and converted to
 webJSON is based on NodeJS. You can create a server and run with only 5-6 lines of JSON. webJSON has its own CLI and file extension wjson. The power of webJSON can be realized better in dynamic app development.
 
 ## Installation
-Make sure you have Node latest version installed. Install it using npm or yarn
-```
+Make sure you have Node latest version installed. Install it using `npm` or `yarn`
+```json
 npm install webjson -g
 yarn add webjson -g
 ```
 ## Creating a Server
-Once you have installed the package, you can start coding. Create an index.wjson file or whatever you name it. Now put the following
+Once you have installed the package, you can start coding. Create an `index.wjson` file or whatever you name it. Now put the following
 ```json
 [
  {
    "type":"server",
    "params": {
-      "port":3000
+      "port": 3000
    }
  }
 ]
@@ -41,43 +41,46 @@ Every configuration or component is basically just a JSON object. The page is an
 3. Scripts
    - Script
    - initScript
-4. StyleSheet   
+4. StyleSheet
 5. Text
 6. Block
 7. TextInput
 8. Button
-
+9. Image
+10. Link
 NOTE: Make sure you type them in lower case letters.
 
-### Server
-This is a required object. Please note that, Only "get" method is supported now. name specifies the Name of your Application.
+## Server
+This is a required object.
 
-A complete example of `server` object can be:
-```json
+1. `name` specifies the Name of your Application. It's not required but recommended to add
+2. `port` specifies the port where your server will be live
+A complete example of server object can be:
+```
  {
    "type":"server",
-   "name": "My First WJSON app", 
    "params": {
       "port":3000,
-      "method": "get"
+      "name": "My First WJSON app"
    }
  }
-``` 
+ ```
 ### Page
-This is a configuration object for each page. `page` object acts
-as the building block of a web app. This is the base component for routing.
+This is a configuration object for each page. page object acts as the building block of a web app. This is the base component for routing.
 
-1. `route` sets the route path of the page. In case of index page, you don't need to specify this.
-2. `routeParam` determines by what name you want to receive the URL params.
-3. `title` sets the page Title. 
-4. `child` is an array of all objects that you want to display in that particular page. 
-5. `childPath` if you want to load the childs from a different file, then put the file local path here. 
-If you specify this, `child` value will be ignored.
-
-A complete example of `page` object can be:
+1. `method` tells the request method the page will support. These methods are currently supported:
+   - get
+   - post
+2. `route` sets the route path of the page. In case of index page, you don't need to specify this.
+3. `routeParam` determines by what name you want to receive the URL params.
+4. `title` sets the page Title.
+5. `child` is an array of all objects that you want to display in that particular page.
+6. `childPath` if you want to load the childs from a different file, then put the file local path here. If you specify this, child value will be ignored.
+A complete example of page object can be:
 ```json
  {
    "type":"page",
+   "method": "get",
    "title": "Home",
    "child": [
      {"type": "text", "value": "Home page"}
@@ -85,24 +88,21 @@ A complete example of `page` object can be:
  },
  {
    "type":"page",
+   "method": "get",
    "title": "About",
    "route": "about",
    "childPath": "about.wjson"
  }
-
-``` 
+ ````
 ### Scripts
-You can load and add javascript code in JSON. As JSON supports only **string**, **number** and **boolean** value, It's difficult to write JS in JSON. So, the solution is to create a separate .js file and load it in your webJSON page. `value` must be a local file path. 
-A simple example of `script` object can be:
+You can load and add javascript code in JSON. As JSON supports only **string**, **number** and **boolean** value, It's difficult to write JS in JSON. So, the solution is to create a separate `.js` file and load it in your webJSON page. value must be a local file path. A simple example of script object can be:
 ```json
  {
    "type":"script",
    "value": "scripts.js",
  }
 ``` 
-
-There is another object called `initScript` or **Initial Script**
-This runs as soon as the page is loaded.
+There is another object called `initScript` or Initial Script This runs as soon as the page is loaded.
 ```json
  {
    "type":"initScript",
@@ -110,16 +110,13 @@ This runs as soon as the page is loaded.
  }
 ``` 
 ### StyleSheet
-Just like HTML stylesheet import, you can include `CSS` stylesheet in your `page`.
-The setup is similar to Scipts.
-A simple example of `styleSheet` object can be:
+Just like HTML stylesheet import, you can include CSS stylesheet in your page. The setup is similar to Scipts. A simple example of styleSheet object can be:
 ```json
  {
    "type":"styleSheet",
    "value": "styles.css",
  }
-``` 
-
+ ```
 ### Text
 This is equivalent to html `p` element. A complete example of text object can be:
 ```json
@@ -133,11 +130,11 @@ This is equivalent to html `p` element. A complete example of text object can be
       }
    }
  }
-``` 
-Take a look at the Style Support list for available style params.
+ ```
+Take a look at the **Style Support list** for available style params.
 
 ### Block
-This is equivalent to html `div` element. With this, You can do everything that you can do with div. This has a special element called child, Where you can append child components. Once again, it is an array of objects. Child components are parsed the same way parent components are parsed.
+This is equivalent to html `div` element. With this, You can do everything that you can do with div. This has a special element called `child`, Where you can append child components. Once again, it is an array of objects. Child components are parsed the same way parent components are parsed.
 
 A complete example of block object can be:
 ```json
@@ -167,8 +164,7 @@ This is equivalent to html `input` element with type text. More options and para
       "placeHolder": "Write your Name..."
    }
  }
- ```
-
+``` 
 ### Button
 This is basically nothing but `button` element. More options and params for this will be added soon.
 ```json
@@ -178,7 +174,32 @@ This is basically nothing but `button` element. More options and params for this
    "onClick": "alert('it is working...')
  }
 ``` 
+### Image
+This is the HTML `img` element. More options and params for this will be added soon.
 
+Notice, how you it accepts the image location in the `value` option. Height and Width style is not required. Only one special param available now is the `lazy` param. If it's true, the image will be lazily loaded.
+```json
+ {
+   "type":"image",
+   "value": "https://images.unsplash.com/photo-1593642634315-48f5414c3ad9?ixid=MnwxMjA3fDF8MHxlZGl0b3JpYWwtZmVlZHwxfHx8ZW58MHx8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=60",
+   "params":{
+     "style": {
+       "height": 200,
+       "width": 200
+     },
+     "lazy": true
+   }
+ }
+``` 
+### Link
+`link` is equivalent to html `a` element. In this object, `value` is taken as the link text. To add the `href` link, you need to pass `link` element. Check the following example:
+```json
+ {
+   "type":"link",
+   "value": "Click Me!",
+   "link": "https://github.com/MadCoderme/webJSON"
+ }
+``` 
 ### Supported Style Params
 Take a look at the supported style params. More will be added soon. 
 NOTE: You can use all the css params that has no conflict with the following style(no hyphens)
@@ -191,11 +212,22 @@ NOTE: You can use all the css params that has no conflict with the following sty
 6. padding
 7. fontSize
 8. fontFamily
-## Built-in Functions & Properties
-webJSON provides some basic but important functions and properties.
+9. position
+10. top
+11. bottom
+12. left
+13. right
+14. border
+
+If you add a Stylesheet or enable Tailwind, you need to replace style `array` with a `string`. For example,
+```json
+ "style": "myClass"
+``` 
+## Built-in Functions & API
+webJSON provides some basic but important functions and API.
 
 ### Receiving Inputs
-Receiving server request information is too easy with webJSON. As only Get Requests are supported now, You can receive and work with query parameters of Get requests in the following way.
+Receiving server request information is too easy with webJSON. You can receive and work with query parameters of `Get` requests in the following way.
 ```
 //Request: http://localhost:3000/?id=12345&name=David
 
@@ -204,8 +236,8 @@ Receiving server request information is too easy with webJSON. As only Get Reque
    "type":"text",
    "value": "Your Id is &id and Name is &name"
  }
-```
-Just put & before the name of the query param you want to work with. You can even use this functionality in JS scripts.
+``` 
+Just put `&` before the name of the query param you want to work with. You can even use this functionality in JS scripts.
 ```javascript
 function giveAlert(){
   if('&id' == "1234") {
@@ -213,24 +245,20 @@ function giveAlert(){
   }
 }
 ```
+This method will also work with `post` request body. Make sure the request body is in `json` format.
 
-You can receive URL parameters of `get` request by putting `&&` before
-the param name.
-For example, if the url is: ``http://localhost:3000/post/123``, then you can receive `123` like below:
+You can receive URL parameters of `get` request by putting && before the param name. For example, if the url is: http://localhost:3000/post/123, then you can receive 123 like below:
 ```json
  {
    "value": "url param id is &&id"
  }
-```
-
+``` 
 Check Page object to understand how to configure URL params.
 
 ### Routing
-Routing or Navigation is one of the most important part of every web application. 
-webJSON makes it very easy to setup and perform routing. 
+Routing or Navigation is one of the most important part of every web application. webJSON makes it very easy to setup and perform routing.
 
-As mentioned earlier, every `page` object is indeed a Page. To navigate form one page to another, you can use the 
-built in function of webJSON 
+As mentioned earlier, every page object is indeed a Page. To navigate form one page to another, you can use the built in function of webJSON
 ```json
 {
   "type": "button",
@@ -238,8 +266,43 @@ built in function of webJSON
   "onClick": "navigate('about')"
 }
 ```
-Basically, you need to pass the `route` name of the page, that you want
-to navigate to. You can pass extra data for example URL Parameters and Query Parameters too.
+Basically, you need to pass the `route `name of the page, that you want to navigate to. You can pass extra data for example URL Parameters and Query Parameters too.
+
+### Tailwind CSS
+To make development easier and faster, webJSON comes with Tailwind CSS in the box. By default, it's not enabled. To enable and use Tailwind CSS classes, add `enableTailwind` param to page object.
+```json
+ {
+   "type":"page",
+   "method": "get",
+   "title": "Home",
+   "childPath": "home.wjson",
+   "params": {
+      "enableTailwind": true
+   }
+ }
+``` 
+You can now use all Tailwind classes. For example,
+```json
+ {
+   "type":"text",
+   "value": "Example Tailwind Text",
+   "params": {
+      "id": "txt",
+      "style": "text-lg font-semibold"
+   }
+ }
+``` 
+
+***Optimizing Performance with Tailwind***
+
+Minified Tailwind CSS is a huge 3000kb+ file which will dramatically increase your loading time and decrease your Lighthouse score. The solution is to prevent unused CSS codes from loading.
+
+webJSON provides a simple solution to this problem. You can run the following command
+```
+wjson purgeTailwind index.wjson
+```
+
+This will analyze your wjson file and configure your project by creating a custom css file with the used classes only. You need to run this whenever you update your code. Or, you may run it only once before deploying app to production.
 
 ## Conditional Rendering
 Basic Conditional rendering has been made a lot easier in webJSON. You can pass a special condition element to every object except server. You need to follow a special syntax to write conditions. Each condition is an array of 3 elements.
@@ -254,5 +317,13 @@ These conditional operators are supported right now:
 2. "!="
 3. ">"
 4. "<"
-
 You can compare these to conditional if statements but more easier to apply. If the condition is true, then the object will be rendered. Else it won't be rendered.
+
+## Support and Contribution
+I am actively developing this project. **If you like it, please help not with Donation, but with Contribution**
+
+This project is not ready and perfect yet for big projects. Please help to grow this faster. If you make a big change, Open an issue first. If you make a small change, open a pull request.
+
+Please let me know your suggestions about this project.
+
+Thanks!

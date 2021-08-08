@@ -1,6 +1,6 @@
 {
   "name": "webjson",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "build web applications with json and js",
   "main": "./bin/index.js",
   "bin": {
@@ -13,10 +13,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "browser-refresh": "^1.7.3",
     "commander": "^8.1.0",
+    "connect-livereload": "^0.6.1",
     "express": "^4.17.1",
     "fs": "^0.0.1-security",
+    "http": "^0.0.1-security",
+    "https": "^1.0.0",
+    "livereload": "^0.9.3",
+    "node-fetch": "^2.6.1",
+    "nodemon": "^2.0.12",
     "postcss-cli": "^8.3.1",
-    "uncss": "^0.17.3"
+    "uncss": "^0.17.3",
+    "xmlhttprequest": "^1.8.0"
   }
 }
