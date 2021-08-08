@@ -248,26 +248,65 @@ function parseJSON(req, data, method, isPurgeMode){
                             let result = judgeCondition(element)
                             shouldRender = result
                         }
-
-                        var returnedList = ''
-                        if(typeof element.data == 'string' && /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(element.data)){
-                            var xhttp = new XMLHttpRequest();
-                            xhttp.open("GET", element.data, false)
-                            xhttp.send()
-                            if(xhttp.status == 200){
-                                provData = JSON.parse(xhttp.responseText)
-                            }
-                        }else if(Array.isArray(element.data)){
-                            var provData = element.data
+                        if(element.params){
+                            var id = element.params.id
+                            var lazy = element.params.lazyLoad
+                            var loader = element.params.loader ? parseChild(element.params.loader) : ''
                         }
-                        provData.map((item, idx) => {
-                            let eachItem = parseChild(element.value).replace(/[$]+([a-z A-Z]{1,})/gi, (mathchedText,$1,offset,str) => {
-                                return  item[$1]
-                            })
-                            returnedList = returnedList + eachItem
-                        }) 
+                        if(lazy){
+                            var convertedCode = parseChild(element.value)
+                            if(typeof element.data == 'string' && /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(element.data)){
+                                var scripts = `
+                                fetch('${element.data}').then(response => response.json()).then(responseJson => {
+                                    responseJson.forEach(i => {
+                                        let corCode = '${convertedCode}'.replace(/[$]+([a-z A-Z0-9_@./#&+-]{1,})/gi, (mathchedText,$1,offset,str) => {
+                                            return  i[$1]
+                                        })
+                                        if(responseJson.indexOf(i) == 0){
+                                            document.getElementById('${id}').innerHTML = corCode
+                                        }else{
+                                            document.getElementById('${id}').innerHTML += corCode
+                                        }
+                                    })
+                                })`
+                            }else if(Array.isArray(element.data)){
+                                let stringData = JSON.stringify(element.data)
+                                var scripts = `
+                                    let data = ${stringData}
+                                    data.forEach(i => {
+                                        let corCode = '${convertedCode}'.replace(/[$]+([a-z A-Z0-9_@./#&+-]{1,})/gi, (mathchedText,$1,offset,str) => {
+                                            return  i[$1]
+                                        })
+                                        if(data.indexOf(i) == 0){
+                                            document.getElementById('${id}').innerHTML = corCode
+                                        }else{
+                                            document.getElementById('${id}').innerHTML += corCode
+                                        }
+                                    })`
+                            }    
+                            getReturn = getReturn + '<script>window.onload = () => {' + scripts + '}' + '</script>'
+                            if(shouldRender) getReturn = getReturn + '<div id="' +id+ '">'+loader+'</div>'
+                        }else{
+                            var returnedList = ''
+                            if(typeof element.data == 'string' && /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.test(element.data)){
+                                var xhttp = new XMLHttpRequest();
+                                xhttp.open("GET", element.data, false)
+                                xhttp.send()
+                                if(xhttp.status == 200){
+                                    provData = JSON.parse(xhttp.responseText)
+                                }
+                            }else if(Array.isArray(element.data)){
+                                var provData = element.data
+                            }
+                            provData.map((item, idx) => {
+                                let eachItem = parseChild(element.value).replace(/[$]+([a-z A-Z0-9_@./#&+-]{1,})/gi, (mathchedText,$1,offset,str) => {
+                                    return  item[$1]
+                                })
+                                returnedList = returnedList + eachItem
+                            }) 
 
-                        if(shouldRender) getReturn = getReturn + returnedList
+                            if(shouldRender) getReturn = '<div id="' +id+ '">' + getReturn + returnedList + '</div>'
+                        }
                     }
                  })      
     return getReturn                       
