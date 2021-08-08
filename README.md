@@ -48,6 +48,7 @@ Every configuration or component is basically just a JSON object. The page is an
 8. Button
 9. Image
 10. Link
+11. List
 
 NOTE: Make sure you type them in lower case letters.
 
@@ -201,6 +202,36 @@ Notice, how you it accepts the image location in the `value` option. Height and 
    "link": "https://github.com/MadCoderme/webJSON"
  }
 ``` 
+
+### List
+
+List is a useful and easy way to render a list of data with just one object. It can handle large amount of data with ease.
+List provides two different ways to load and show data. 
+
+1. **Load when page loads**
+   - In this method, all the data will be loaded when the page is being loaded and rendered instantly after page is loaded. This method is useful
+     if you a small amount of data or a directly an object without fetching from external API. But, if you have a large amount of data, this method will badly
+     slow down your page. 
+2. **Load after page is loaded**
+   - This method is useful if you need to fetch data from API. This will keep performance and speed good and fetch data once page is loaded. You can add a `loader`
+   to show until data is fetched.
+
+Check the following example of the first method:
+
+1. `data` can be either an **object** or an API link.
+2. `value` says how each element will be rendered. Note, how `$` is used to declare the looping variable. You
+   are receiving the `id` property from each object using this syntax. It must be used inside a string and automatically will be converted to actual property. 
+```json
+{
+  "type":"list",
+  "data": [{"id": 123}, {"id": 1234}, {"id": 12345}],
+  "value": [{
+        "type": "text",
+        "value": "$id"
+   }]
+}
+```
+
 ### Supported Style Params
 Take a look at the supported style params. More will be added soon. 
 NOTE: You can use all the css params that has no conflict with the following style(no hyphens)
