@@ -205,7 +205,7 @@ Notice, how you it accepts the image location in the `value` option. Height and 
 
 ### List
 
-List is a useful and easy way to render a list of data with just one object. It can handle large amount of data with ease.
+`List` is a useful and easy way to render a list of data with just one object. It can handle large amount of data with ease.
 List provides two different ways to load and show data. 
 
 1. **Load when page loads**
@@ -216,9 +216,9 @@ List provides two different ways to load and show data.
    - This method is useful if you need to fetch data from API. This will keep performance and speed good and fetch data once page is loaded. You can add a `loader`
    to show until data is fetched.
 
-Check the following example of the first method:
+Check the following example of the `first method`:
 
-1. `data` can be either an **object** or an API link.
+1. `data` can be either an **object** or an **API link**.
 2. `value` says how each element will be rendered. Note, how `$` is used to declare the looping variable. You
    are receiving the `id` property from each object using this syntax. It must be used inside a string and automatically will be converted to actual property. 
 ```json
@@ -231,6 +231,59 @@ Check the following example of the first method:
    }]
 }
 ```
+
+If you put an API link here, as the method works, page will keep loading until data is received. 
+It’s not recommended anyway. Use the `second method` for those type of list:
+
+1. `lazyLoad` says if the data should be fetched and rendered lazily. This is the configuration param to use `second method`
+2. `loader` displays a `loading element` while the data is being fetched. This is recommended to add. `loader` is once again an array of `webJSON` component objects.
+```json
+{
+  "type":"list",
+  "data": "https://random-data-api.com/api/color/random_color?size=10",
+  "value": [{
+        "type": "block",
+        "params": {
+	    "style": {
+		"backgroundColor": "$hex_value",
+		"height": 100,
+		"width": 100
+	    }
+      	}
+   }],
+  "params": {
+	"lazyLoad": true
+  }
+}
+```
+
+If you run the above example with `lazyLoad` param `true`, the page will quickly load. Then, all the data will be fetched and rendered lazily. 
+To add a loader, simply pass the `loader` param. Check the example below:
+
+```json
+{
+  "type":"list",
+  "data": "https://random-data-api.com/api/color/random_color?size=10",
+  "value": [{
+        "type": "text",
+	"value": "$color_name",
+        "params": {
+	    "style": {
+		"color": "$hex_value"
+	    }
+      	}
+   }],
+  "params": {
+	"lazyLoad": true,
+	"loader": [{
+	    "type": "text",
+	    "value": "Loading..."
+ 	}]
+  }
+}
+```
+`loader` can be any element or multiple elements and will disappear once data is loaded.
+
 
 ### Supported Style Params
 Take a look at the supported style params. More will be added soon. 
