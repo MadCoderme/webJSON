@@ -244,7 +244,7 @@ It’s not recommended anyway. Use the `second method` for those type of list:
   "data": "https://random-data-api.com/api/color/random_color?size=10",
   "value": [{
         "type": "block",
-	"child: [],
+	"child": [],
         "params": {
 	    "style": {
 		"backgroundColor": "$hex_value",
