@@ -55,8 +55,11 @@ NOTE: Make sure you type them in lower case letters.
 ## Server
 This is a required object.
 
-1. `name` specifies the Name of your Application. It's not required but recommended to add
-2. `port` specifies the port where your server will be live
+Param | Required | Value Type | Description
+------|----------|------------|-------------
+`name` | No, But Recommended | `string` | This is your application name. This is important, if you enable and purge Tailwind.
+`port` | Yes | `int` | The port of server where your application will be live
+
 A complete example of server object can be:
 ```
  {
@@ -70,14 +73,17 @@ A complete example of server object can be:
 ### Page
 This is a configuration object for each page. page object acts as the building block of a web app. This is the base component for routing.
 
-1. `method` tells the request method the page will support. These methods are currently supported:
-   - get
-   - post
-2. `route` sets the route path of the page. In case of index page, you don't need to specify this.
-3. `routeParam` determines by what name you want to receive the URL params.
-4. `title` sets the page Title.
-5. `child` is an array of all objects that you want to display in that particular page.
-6. `childPath` if you want to load the childs from a different file, then put the file local path here. If you specify this, child value will be ignored.
+Param | Required | Value Type | Description
+------|----------|------------|-------------
+`method` | Yes | `string` (`get` or `post`) | Method of acceptable requests
+`route` | Yes (if the page should not be the index file) | `string` | Route or Path of Page
+`routeParam` | No | `string` | Determines the name with which you want to receive URL parameters of the specified route
+`title` | No | `string` | Title of Page
+`child` | Yes | `array` | Array of Child Component Objects, which will be shown in the page
+`childPath` | No | `string` | Local relative path of the file from which you want to receive childs. If you want to get childs from different file, specify this. `child` value will be ignored if this is added
+
+
+
 A complete example of page object can be:
 ```json
  {
