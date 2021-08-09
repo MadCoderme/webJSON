@@ -237,12 +237,14 @@ It’s not recommended anyway. Use the `second method` for those type of list:
 
 1. `lazyLoad` says if the data should be fetched and rendered lazily. This is the configuration param to use `second method`
 2. `loader` displays a `loading element` while the data is being fetched. This is recommended to add. `loader` is once again an array of `webJSON` component objects.
+3. `id` is a required param. Without this, data won't be rendered
 ```json
 {
   "type":"list",
   "data": "https://random-data-api.com/api/color/random_color?size=10",
   "value": [{
         "type": "block",
+	"child: [],
         "params": {
 	    "style": {
 		"backgroundColor": "$hex_value",
@@ -252,6 +254,7 @@ It’s not recommended anyway. Use the `second method` for those type of list:
       	}
    }],
   "params": {
+  	"id": "colorList",
 	"lazyLoad": true
   }
 }
@@ -274,6 +277,7 @@ To add a loader, simply pass the `loader` param. Check the example below:
       	}
    }],
   "params": {
+  	"id": "colorList",
 	"lazyLoad": true,
 	"loader": [{
 	    "type": "text",
