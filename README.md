@@ -103,7 +103,12 @@ A complete example of page object can be:
  }
  ````
 ### Scripts
-You can load and add javascript code in JSON. As JSON supports only **string**, **number** and **boolean** value, It's difficult to write JS in JSON. So, the solution is to create a separate `.js` file and load it in your webJSON page. value must be a local file path. A simple example of script object can be:
+You can load and add javascript code in JSON. As JSON supports only **string**, **number** and **boolean** value, It's difficult to write JS in JSON. So, the solution is to create a separate `.js` file and load it in your webJSON page.
+Param | Required | Value Type | Description
+------|----------|------------|-------------
+`name` | Yes | `string` | Local Relative path of `js` File
+
+A simple example of script object can be:
 ```json
  {
    "type":"script",
@@ -126,7 +131,16 @@ Just like HTML stylesheet import, you can include CSS stylesheet in your page. T
  }
  ```
 ### Text
-This is equivalent to html `p` element. A complete example of text object can be:
+This is equivalent to html `p` element.
+
+Param | Required | Value Type | Description
+------|----------|------------|-------------
+`value` | Yes | `string` | Text Value. Can be empty, but property must be declared
+`id` | No | `string` | ID of DOM Element
+`style` | No | `object` or `string` | Object, if you add inline styling. If you want to use CSS class or Tailwind class, then put class name(s) as string
+`onClick` | No | `string` | Function name to be called once Text is clicked
+ 
+A complete example of text object can be:
 ```json
  {
    "type":"text",
