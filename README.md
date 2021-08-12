@@ -157,7 +157,13 @@ Take a look at the **Style Support list** for available style params.
 
 ### Block
 This is equivalent to html `div` element. With this, You can do everything that you can do with div. This has a special element called `child`, Where you can append child components. Once again, it is an array of objects. Child components are parsed the same way parent components are parsed.
-
+Param | Required | Value Type | Description
+------|----------|------------|-------------
+`child` | Yes | `array` | It can be empty, but must be declared. Array of Component Objects 
+`id` | No | `string` | ID of DOM Element
+`style` | No | `object` or `string` | Object, if you add inline styling. If you want to use CSS class or Tailwind class, then put class name(s) as string
+`onClick` | No | `string` | Function name to be called once Block is clicked
+ 
 A complete example of block object can be:
 ```json
  {
@@ -175,6 +181,14 @@ A complete example of block object can be:
 ``` 
 ### TextInput
 This is equivalent to html `input` element with type text. More options and params for this will be added soon.
+Param | Required | Value Type | Description
+------|----------|------------|-------------
+`placeHolder` | No | `string` | Placeholder for Textinput 
+`id` | No | `string` | ID of DOM Element
+`style` | No | `object` or `string` | Object, if you add inline styling. If you want to use CSS class or Tailwind class, then put class name(s) as string
+`onTextChanged` | No | `string` | Function name to be called once Input Text is changed. This triggers even if text is Pasted.
+`multiline` | No | Bool | If text input should allow multiple lines
+ 
 ```json
  {
    "type":"textInput",
@@ -188,7 +202,15 @@ This is equivalent to html `input` element with type text. More options and para
  }
 ``` 
 ### Button
-This is basically nothing but `button` element. More options and params for this will be added soon.
+This is basically nothing but `button` element. 
+Param | Required | Value Type | Description
+------|----------|------------|-------------
+`value` | Yes | `string` | Button Text Value. Can be empty, but property must be declared
+`id` | No | `string` | ID of DOM Element
+`style` | No | `object` or `string` | Object, if you add inline styling. If you want to use CSS class or Tailwind class, then put class name(s) as string
+`onClick` | No | `string` | Function name to be called once Button is clicked
+ 
+More options and params for this will be added soon.
 ```json
  {
    "type":"button",
@@ -200,6 +222,14 @@ This is basically nothing but `button` element. More options and params for this
 This is the HTML `img` element. More options and params for this will be added soon.
 
 Notice, how you it accepts the image location in the `value` option. Height and Width style is not required. Only one special param available now is the `lazy` param. If it's true, the image will be lazily loaded.
+
+Param | Required | Value Type | Description
+------|----------|------------|-------------
+`value` | Yes | `string` | Image Source URL
+`id` | No | `string` | ID of DOM Element
+`style` | No | `object` or `string` | Object, if you add inline styling. If you want to use CSS class or Tailwind class, then put class name(s) as string
+`onClick` | No | `string` | Function name to be called once Image is clicked
+`lazy` | No | Bool | If Image should be loaded lazily
 ```json
  {
    "type":"image",
@@ -215,6 +245,13 @@ Notice, how you it accepts the image location in the `value` option. Height and 
 ``` 
 ### Link
 `link` is equivalent to html `a` element. In this object, `value` is taken as the link text. To add the `href` link, you need to pass `link` element. Check the following example:
+Param | Required | Value Type | Description
+------|----------|------------|-------------
+`value` | Yes | `string` | Text Value
+`link` | Yes | `string` | Link to redirect. Can be relative path or external uri
+`id` | No | `string` | ID of DOM Element
+`style` | No | `object` or `string` | Object, if you add inline styling. If you want to use CSS class or Tailwind class, then put class name(s) as string
+ 
 ```json
  {
    "type":"link",
@@ -236,11 +273,17 @@ List provides two different ways to load and show data.
    - This method is useful if you need to fetch data from API. This will keep performance and speed good and fetch data once page is loaded. You can add a `loader`
    to show until data is fetched.
 
+Param | Required | Value Type | Description
+------|----------|------------|-------------
+`data` | Yes | `string` | `array` | Data to be rendered. It can be either an array of objects(not string or other data types) or an API Link. 
+`value` | Yes | `array` | How each element will be rendered. Note, how `$` is used to declare the looping variable. You are receiving the `id` property from each object using this syntax. It must be used inside a string and automatically will be converted to actual property. Array of Objects
+`id` | Yes | No | `string` | Required param if `lazyLoad` is true. In that case, without this, data won't be rendered
+`style` | No | `object` or `string` | Object, if you add inline styling. If you want to use CSS class or Tailwind class, then put class name(s) as string
+`lazyLoad` | No | `bool` | If the data should be fetched and rendered lazily. This is the configuration param to use `second method`
+`loader` | No | `array` | Displays a `loading element` while the data is being fetched. This is recommended to add. `loader` is once again an array of `webJSON` component objects. Can be multple objects.
+
 Check the following example of the `first method`:
 
-1. `data` can be either an **object** or an **API link**.
-2. `value` says how each element will be rendered. Note, how `$` is used to declare the looping variable. You
-   are receiving the `id` property from each object using this syntax. It must be used inside a string and automatically will be converted to actual property. 
 ```json
 {
   "type":"list",
@@ -255,9 +298,6 @@ Check the following example of the `first method`:
 If you put an API link here, as the method works, page will keep loading until data is received. 
 It’s not recommended anyway. Use the `second method` for those type of list:
 
-1. `lazyLoad` says if the data should be fetched and rendered lazily. This is the configuration param to use `second method`
-2. `loader` displays a `loading element` while the data is being fetched. This is recommended to add. `loader` is once again an array of `webJSON` component objects.
-3. `id` is a required param. Without this, data won't be rendered
 ```json
 {
   "type":"list",
@@ -306,8 +346,6 @@ To add a loader, simply pass the `loader` param. Check the example below:
   }
 }
 ```
-`loader` can be any element or multiple elements and will disappear once data is loaded.
-
 
 ### Supported Style Params
 Take a look at the supported style params. More will be added soon. 
@@ -330,7 +368,7 @@ NOTE: You can use all the css params that has no conflict with the following sty
 
 If you add a Stylesheet or enable Tailwind, you need to replace style `array` with a `string`. For example,
 ```json
- "style": "myClass"
+ "style": "myClass m-10 bg-blue-200"
 ``` 
 ## Built-in Functions & API
 webJSON provides some basic but important functions and API.
@@ -402,7 +440,7 @@ You can now use all Tailwind classes. For example,
  }
 ``` 
 
-***Optimizing Performance with Tailwind***
+#### Optimizing Performance with Tailwind
 
 Minified Tailwind CSS is a huge 3000kb+ file which will dramatically increase your loading time and decrease your Lighthouse score. The solution is to prevent unused CSS codes from loading.
 
