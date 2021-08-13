@@ -277,7 +277,7 @@ Param | Required | Value Type | Description
 ------|----------|------------|-------------
 `data` | Yes | `string` | `array` | Data to be rendered. It can be either an array of objects(not string or other data types) or an API Link. 
 `value` | Yes | `array` | How each element will be rendered. Note, how `$` is used to declare the looping variable. You are receiving the `id` property from each object using this syntax. It must be used inside a string and automatically will be converted to actual property. Array of Objects
-`id` | Yes | No | `string` | Required param if `lazyLoad` is true. In that case, without this, data won't be rendered
+`id` | Yes / No | `string` | Required param if `lazyLoad` is true. In that case, without this, data won't be rendered
 `style` | No | `object` or `string` | Object, if you add inline styling. If you want to use CSS class or Tailwind class, then put class name(s) as string
 `lazyLoad` | No | `bool` | If the data should be fetched and rendered lazily. This is the configuration param to use `second method`
 `loader` | No | `array` | Displays a `loading element` while the data is being fetched. This is recommended to add. `loader` is once again an array of `webJSON` component objects. Can be multple objects.
